@@ -1,0 +1,6 @@
+.ipynb_checkpoints
+*.py[co]
+.DS_Store
+*.swp
+__pycache__
+.idea
