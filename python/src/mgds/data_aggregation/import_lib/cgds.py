@@ -272,7 +272,7 @@ def aggregate(d, max_replicates=3):
     # Given that the number of cell line + gene replicates is within the expected range,
     # group by those identifiers and determine the mean and standard deviation for each group
     d = d.groupby(['CELL_LINE_ID', 'GENE_ID:HGNC', 'GENE_ID:CGDS'])['VALUE']\
-        .agg({'VALUE_MEAN': np.mean, 'VALUE_STD': np.std})
+        .agg({'VALUE_MEAN': np.mean, 'VALUE_STD': np.std, 'VALUE_CT': 'count'})
     d['VALUE_STD'] = d['VALUE_STD'].fillna(0) # Replace STD for single replicates with 0
     d = d.reset_index()
 

@@ -1,6 +1,5 @@
 
 import os
-import pickle
 import pandas as pd
 from mgds.data_aggregation import io_utils
 from mgds.data_aggregation import config
