@@ -1,6 +1,7 @@
 
 import pandas as pd
 import numpy as np
+import re
 import logging
 from mgds.data_aggregation import database as db
 from mgds.data_aggregation import config as cfg
@@ -21,10 +22,13 @@ ENTITY_TYPE_ID = {
     'cancer_histology': 5
 }
 
-# def get_entity_data(entity_type):
+
+ALPHANUM_REGEX = re.compile('[\W_]+')
 
 
-# def get_entity_id()
+def remove_non_alphanum(x, replacement=''):
+    return ALPHANUM_REGEX.sub(replacement, x)
+
 
 def get_raw_entities(sources, data_types, col_regex):
     r = {}
