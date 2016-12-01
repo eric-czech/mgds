@@ -2,14 +2,14 @@
 import os
 import pandas as pd
 
-CACHE_DIR = '/Users/eczech/.synapseCache'
+CACHE_DIR = os.path.expanduser('~/data/research/mgds/raw/ncidream_v1')
 
 
 def get_all_dream_files():
     res = []
     for root, dirs, files in os.walk(CACHE_DIR):
         for file in files:
-            if file.endswith(".txt"):
+            if file.endswith(".txt") or file.endswith(".xlsx"):
                 res.append(os.path.join(root, file))
     return res
 

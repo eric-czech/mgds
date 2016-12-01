@@ -14,3 +14,7 @@ GTEX_v1 = 'gtex_v1'
 BIOC_v1 = 'bioc_v1'
 
 MGDS_v1 = 'mgds_v1'
+
+
+def get_pretty_name(source):
+    return source.split('_')[0].upper()
