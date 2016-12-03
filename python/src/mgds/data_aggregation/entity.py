@@ -11,14 +11,14 @@ logger = logging.getLogger(__name__)
 GENE = 'gene'
 DRUG = 'drug'
 CELL_LINE = 'cell_line'
-CANCER_SITE = 'cancer_site'
+PRIMARY_SITE = 'primary_site'
 CANCER_HISTOLOGY = 'cancer_histology'
 
 ENTITY_TYPE_ID = {
     'cell_line': 1,
     'gene': 2,
     'drug': 3,
-    'cancer_site': 4,
+    'primary_site': 4,
     'cancer_histology': 5
 }
 
