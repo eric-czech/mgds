@@ -9,6 +9,7 @@ from mgds.data_aggregation import data_type as dat_typ
 import logging
 logger = logging.getLogger(__name__)
 
+
 def get_hugo_gene_ids():
     """ Get HUGO Gene Symbols"""
     d = db.load(src.HUGO_v1, db.IMPORT, 'gene-meta')
@@ -22,6 +23,8 @@ def get_entity_mapping(entity_type):
         return db.load(src.MGDS_v1, db.ENTITY, 'cellline-ids-by-typ')
     if entity_type == entity.PRIMARY_SITE:
         return db.load(src.MGDS_v1, db.ENTITY, 'primary-site-by-src')
+    if entity_type == entity.DRUG:
+        return db.load(src.MGDS_v1, db.ENTITY, 'drug-ids')
     else:
         raise ValueError('Mappings for entity type "{}" not yet supported'.format(entity_type))
 
@@ -40,7 +43,25 @@ def get_cellline_metadata(sources, mappings=None):
     return d_id
 
 
-def get_raw_genomic_data(source, data_type, cell_line_taxonomy='COMMON', mappings=None):
+def get_drug_sensitivity_data(sources, mappings=None):
+    d_drug = []
+    for source in sources:
+        d = get_raw_genomic_data(source, dat_typ.DRUG_SENSITIVITY, mappings=mappings)
+        d_drug.append(d.assign(SOURCE=source))
+    d_drug = pd.concat(d_drug)
+
+    # TODO: Uncomment this when GDSC null cell lines fixed for drug data
+    # assert np.all(d_drug['CELL_LINE_ID:MGDS'].notnull()), \
+    #     'Found null MGDS ID for cell line in drug data -- '\
+    #     'this should not be possible and reflects a mapping omission or error'
+
+    assert np.all(d_drug['DRUG_NAME:MGDS'].notnull()), \
+        'Found null MGDS drug name for cell line in drug data -- '\
+        'this should not be possible and reflects a mapping omission or error'
+    return d_drug
+
+
+def get_raw_genomic_data(source, data_type, cell_line_taxonomy='COMMON', drug_name_taxonomy='COMMON', mappings=None):
 
     if not db.exists(source, db.IMPORT, data_type):
         return None
@@ -102,6 +123,38 @@ def get_raw_genomic_data(source, data_type, cell_line_taxonomy='COMMON', mapping
             for c in ['PRIMARY_SITE:SOURCE', 'PRIMARY_SITE:MGDS']:
                 d[c] = None
 
+    if data_type == dat_typ.DRUG_SENSITIVITY:
+        assert 'CELL_LINE_ID:MGDS' in d, \
+            'Drug sensitivity data for source "{}" contains no normalized cell line '\
+            'ids so it cannot be joined to drug name mappings'.format(source)
+        assert 'DRUG_NAME' in d, \
+            'Drug sensitivity data for source "{}" does not contain field "DRUG_NAME"'.format(source)
+
+        # Load drug name mapping data
+        if mappings is not None and entity.DRUG in mappings:
+            d_rx = mappings[entity.DRUG]
+        else:
+            d_rx = get_entity_mapping(entity.DRUG)
+
+        # Subset to given taxonomy
+        assert drug_name_taxonomy in d_rx, \
+            'Drug name taxonomy "{}" not found in mapping data'.format(drug_name_taxonomy)
+        d_rx = d_rx[drug_name_taxonomy]
+
+        # If the source is present in drug name mapping, join this mapping to the data
+        if source in d_rx:
+            d_rx = d_rx[source].reset_index().rename(columns={source: 'DRUG_NAME:SOURCE'})
+
+            # Merge to raw data, resulting in two extra fields (DRUG_NAME:[SOURCE|MGDS])
+            d = pd.merge(d, d_rx, left_on='DRUG_NAME', right_on='DRUG_NAME:SOURCE', how='left')
+
+        # Otherwise, log a warning that drug names will not be available for this source
+        else:
+            logger.warning(
+                'Drug sensitivity data for source "{}" contains no normalize drug name mapping'.format(source)
+            )
+            for c in ['DRUG_NAME:SOURCE', 'DRUG_NAME:MGDS']:
+                d[c] = None
     return d
 
 
