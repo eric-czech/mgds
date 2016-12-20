@@ -1,13 +1,17 @@
 
 import os
+import dill
 import pandas as pd
 from mgds.data_aggregation import io_utils
 from mgds.data_aggregation import config
+import logging
+logger = logging.getLogger(__name__)
 
 RAW = 'raw'
 IMPORT = 'import'
 NORMALIZED = 'normalized'
 ENTITY = 'entity'
+PREP = 'prep'
 
 
 def get_download_file(source, filename):
@@ -39,6 +43,13 @@ def save(data, source, database, table):
     return file_path
 
 
+def save_obj(obj, source, database, filename):
+    file_path = _table(source, database, filename)
+    with open(file_path, 'wb') as fd:
+        dill.dump(obj, fd)
+    return file_path
+
+
 def exists(source, database, table):
     file_path = _table(source, database, table)
     return os.path.exists(file_path)
@@ -47,3 +58,28 @@ def exists(source, database, table):
 def load(source, database, table):
     file_path = _table(source, database, table)
     return pd.read_pickle(file_path)
+
+
+def load_obj(source, database, filename):
+    file_path = _table(source, database, filename)
+    with open(file_path, 'rb') as fd:
+        return dill.load(fd)
+
+
+def tables(source, database):
+    path = os.path.join(config.DATA_DIR, database)
+    table_names = []
+    for filename in os.listdir(path):
+        if not os.path.isfile(os.path.join(path, filename)):
+            continue
+        if len(filename.split('.')) != 2 and not filename.endswith('.tar.gz'):
+            logger.warn(
+                'Ignoring invalid table name format for file "{}" '
+                '(names should only have one period)'.format(os.path.join(path, filename))
+            )
+            continue
+        if filename.startswith(source + '_'):
+            table_names.append(filename.split('.')[0].replace(source + '_', ''))
+    return table_names
+
+

@@ -9,11 +9,10 @@ NCI60_v2 = 'nci60_v2'
 NCIDREAM_v1 = 'ncidream_v1'
 # GDSC_v1 = 'gdsc_v1'
 GDSC_v2 = 'gdsc_v2'
-TCGA_BREAST_v1 = 'tcga-breast_v1'
 GTEX_v1 = 'gtex_v1'
 BIOC_v1 = 'bioc_v1'
-
 MGDS_v1 = 'mgds_v1'
+TCGA_v1 = 'tcga_v1'
 
 
 def get_pretty_name(source):

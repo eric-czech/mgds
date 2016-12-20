@@ -30,6 +30,7 @@ def _to_url(cmd, data=None):
 
 def _get(cmd, data=None):
     url = _to_url(cmd, data)
+    # print(url)
     return pd.read_csv(url, sep='\t', comment='#')
 
 
@@ -286,7 +287,7 @@ def aggregate(d, max_replicates=3):
     return d, d_dist
 
 
-def prep_clinical_data(d):
+def prep_clinical_data(d, keep_cols=None):
     # Subset raw CGDS clinical data with 100+ fields to only those that are most relevant
     c_clinical = [
         'CASE_ID',
@@ -314,6 +315,8 @@ def prep_clinical_data(d):
         'DATA_SOURCE',
         'TUMOR_TYPE'
     ]
+    if keep_cols is not None:
+        c_clinical += keep_cols
     assert 'CASE_ID' in d, 'Raw clinical data must contain "CASE_ID" field'
     d = d[np.intersect1d(c_clinical, d.columns.tolist())]
 
