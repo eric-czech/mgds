@@ -4,7 +4,7 @@ import numpy as np
 from mgds.data_aggregation import database as db
 from mgds.data_aggregation import source as src
 from mgds.data_aggregation import entity
-from mgds.data_aggregation import data_type as dat_typ
+from mgds.data_aggregation import data_type as dtyp
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +16,32 @@ def get_hugo_gene_ids():
     d = d[~d['Approved Name'].str.lower().str.contains('symbol withdrawn|entry withdrawn')]
     d = d['Approved Symbol'].unique()
     return d
+
+
+def get_genomic_data_availability():
+    datasets = [
+        (src.CCLE_v1, dtyp.GENE_COPY_NUMBER),
+        (src.CCLE_v1, dtyp.GENE_EXPRESSION),
+        (src.CCLE_v1, dtyp.GENE_EXOME_SEQ),
+        (src.GDSC_v2, dtyp.GENE_COPY_NUMBER),
+        (src.GDSC_v2, dtyp.GENE_EXPRESSION),
+        (src.GDSC_v2, dtyp.GENE_EXOME_SEQ),
+        (src.NCI60_v2, dtyp.GENE_COPY_NUMBER),
+        (src.NCI60_v2, dtyp.GENE_EXPRESSION),
+        (src.NCI60_v2, dtyp.GENE_EXOME_SEQ),
+        (src.NCIDREAM_v1, dtyp.GENE_COPY_NUMBER),
+        (src.NCIDREAM_v1, dtyp.GENE_EXPRESSION),
+        (src.NCIDREAM_v1, dtyp.GENE_EXOME_SEQ),
+        (src.NCIDREAM_v1, dtyp.GENE_METHYLATION),
+        (src.NCIDREAM_v1, dtyp.GENE_RNA_SEQ),
+        (src.GDSC_v2, dtyp.DRUG_SENSITIVITY),
+        (src.CCLE_v1, dtyp.DRUG_SENSITIVITY),
+        (src.NCI60_v2, dtyp.DRUG_SENSITIVITY),
+        (src.NCIDREAM_v1, dtyp.DRUG_SENSITIVITY),
+        # (src.NCIDREAM_v1, dtyp.GENE_RPPA)
+    ]
+    return datasets
+
 
 
 def get_entity_mapping(entity_type):
@@ -32,7 +58,7 @@ def get_entity_mapping(entity_type):
 def get_cellline_metadata(sources, mappings=None):
     d_id = []
     for source in sources:
-        d = get_raw_genomic_data(source, dat_typ.CELLLINE_META, mappings=mappings)
+        d = get_raw_genomic_data(source, dtyp.CELLLINE_META, mappings=mappings)
         if d is None:
             continue
         d_id.append(d.assign(SOURCE=source))
@@ -46,7 +72,7 @@ def get_cellline_metadata(sources, mappings=None):
 def get_drug_sensitivity_data(sources, mappings=None):
     d_drug = []
     for source in sources:
-        d = get_raw_genomic_data(source, dat_typ.DRUG_SENSITIVITY, mappings=mappings)
+        d = get_raw_genomic_data(source, dtyp.DRUG_SENSITIVITY, mappings=mappings)
         d_drug.append(d.assign(SOURCE=source))
     d_drug = pd.concat(d_drug)
 
@@ -123,7 +149,7 @@ def get_raw_genomic_data(source, data_type, cell_line_taxonomy='COMMON', drug_na
             for c in ['PRIMARY_SITE:SOURCE', 'PRIMARY_SITE:MGDS']:
                 d[c] = None
 
-    if data_type == dat_typ.DRUG_SENSITIVITY:
+    if data_type == dtyp.DRUG_SENSITIVITY:
         assert 'CELL_LINE_ID:MGDS' in d, \
             'Drug sensitivity data for source "{}" contains no normalized cell line '\
             'ids so it cannot be joined to drug name mappings'.format(source)

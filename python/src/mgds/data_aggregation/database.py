@@ -4,6 +4,7 @@ import dill
 import pandas as pd
 from mgds.data_aggregation import io_utils
 from mgds.data_aggregation import config
+from mgds.data_aggregation import source as src
 import logging
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,21 @@ def raw_file(source, filename):
 
 
 def cache_raw_operation(operation, source, dataset, overwrite=False):
-    file_path = raw_file(source, dataset + '.pkl')
+    file_path = _table(source, RAW, dataset)
+    return _cache_op(file_path, overwrite, operation)
+    return cache_operation(operation, source, PREP, dataset, overwrite=overwrite)
+
+
+def cache_prep_operation(operation, dataset, overwrite=False):
+    return cache_operation(operation, src.MGDS_v1, PREP, dataset, overwrite=overwrite)
+
+
+def cache_operation(operation, source, database, dataset, overwrite=False):
+    file_path = _table(source, database, dataset)
+    return _cache_op(file_path, overwrite, operation)
+
+
+def _cache_op(file_path, overwrite, operation):
     if not os.path.exists(file_path) or overwrite:
         obj = operation()
         io_utils.to_pickle(obj, file_path)
