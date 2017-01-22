@@ -18,6 +18,15 @@ def get_hugo_gene_ids():
     return d
 
 
+def get_preferred_drug_sensitivity_measurements():
+    return dict([
+        (src.CTD_v2, 'AUC'),
+        (src.GDSC_v2, 'LN_IC50'),
+        (src.NCI60_v2, 'LN_GI50'),
+        (src.NCIDREAM_v1, 'LN_GI50')
+    ])
+
+
 def get_genomic_data_availability():
     datasets = [
         (src.CCLE_v1, dtyp.GENE_COPY_NUMBER),
@@ -35,13 +44,12 @@ def get_genomic_data_availability():
         (src.NCIDREAM_v1, dtyp.GENE_METHYLATION),
         (src.NCIDREAM_v1, dtyp.GENE_RNA_SEQ),
         (src.GDSC_v2, dtyp.DRUG_SENSITIVITY),
-        (src.CCLE_v1, dtyp.DRUG_SENSITIVITY),
+        (src.CTD_v2, dtyp.DRUG_SENSITIVITY),
         (src.NCI60_v2, dtyp.DRUG_SENSITIVITY),
         (src.NCIDREAM_v1, dtyp.DRUG_SENSITIVITY),
         # (src.NCIDREAM_v1, dtyp.GENE_RPPA)
     ]
     return datasets
-
 
 
 def get_entity_mapping(entity_type):

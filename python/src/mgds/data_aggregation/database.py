@@ -1,8 +1,7 @@
 
 import os
-import dill
 import pandas as pd
-from mgds.data_aggregation import io_utils
+from py_utils import io_utils
 from mgds.data_aggregation import config
 from mgds.data_aggregation import source as src
 import logging
@@ -29,7 +28,8 @@ def raw_file(source, filename):
 def cache_raw_operation(operation, source, dataset, overwrite=False):
     file_path = _table(source, RAW, dataset)
     return _cache_op(file_path, overwrite, operation)
-    return cache_operation(operation, source, PREP, dataset, overwrite=overwrite)
+
+    # return cache_operation(operation, source, PREP, dataset, overwrite=overwrite)
 
 
 def cache_prep_operation(operation, dataset, overwrite=False):
@@ -60,9 +60,7 @@ def save(data, source, database, table):
 
 def save_obj(obj, source, database, filename):
     file_path = _table(source, database, filename)
-    with open(file_path, 'wb') as fd:
-        dill.dump(obj, fd)
-    return file_path
+    return io_utils.to_pickle(obj, file_path)
 
 
 def exists(source, database, table):
@@ -77,8 +75,7 @@ def load(source, database, table):
 
 def load_obj(source, database, filename):
     file_path = _table(source, database, filename)
-    with open(file_path, 'rb') as fd:
-        return dill.load(fd)
+    return io_utils.from_pickle(file_path)
 
 
 def tables(source, database):

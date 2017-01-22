@@ -2,7 +2,8 @@
 
 import os
 import pandas as pd
-import pickle
+#import pickle
+import dill
 from io import StringIO
 from zipfile import ZipFile
 import urllib
@@ -69,23 +70,24 @@ def extract_ftp_zip_to_file_bytes(ftp_archive, destination_archive, extract_file
     return _load_archive_file(destination_archive, extract_file)
 
 
-def to_pickle(obj, file_path):
-    """ Serialize python object to file
-    :param obj: Object to serialize
-    :param file_path: File path for pickle data
-    :return: File path on success
-    """
-    logger.debug('Writing serialized object to "{}"'.format(file_path))
-    with open(file_path, 'wb') as fd:
-        pickle.dump(obj, fd)
-    return file_path
-
-
-def from_pickle(file_path):
-    """ Deserialize python object from file
-    :param file_path: File path for pickle data
-    :return: Deserialized object
-    """
-    logger.debug('Restoring serialized object from "{}"'.format(file_path))
-    with open(file_path, 'rb') as fd:
-        return pickle.load(fd)
+# Use py_utils.io_utils instead
+# def to_pickle(obj, file_path):
+#     """ Serialize python object to file
+#     :param obj: Object to serialize
+#     :param file_path: File path for pickle data
+#     :return: File path on success
+#     """
+#     logger.debug('Writing serialized object to "{}"'.format(file_path))
+#     with open(file_path, 'wb') as fd:
+#         dill.dump(obj, fd)
+#     return file_path
+#
+#
+# def from_pickle(file_path):
+#     """ Deserialize python object from file
+#     :param file_path: File path for pickle data
+#     :return: Deserialized object
+#     """
+#     logger.debug('Restoring serialized object from "{}"'.format(file_path))
+#     with open(file_path, 'rb') as fd:
+#         return dill.load(fd)
