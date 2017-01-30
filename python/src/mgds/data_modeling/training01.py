@@ -9,7 +9,12 @@ import collections
 import logging
 logger = logging.getLogger(__name__)
 
-TRAINING_RES_PATH = '/Users/eczech/data/research/mgds/modeling/rx/results/archive'
+TRAINING_RES_PATH = '/Users/eczech/data/research/mgds/modeling/rx/results'
+
+
+# ################## #
+# Training Functions #
+# ################## #
 
 
 def _validate_fold(folds, i, j, k):
@@ -89,7 +94,7 @@ def train_models(models, d_train, d_test=None, prefit_models=None, include_predi
         if prefit_models is not None and est_name in prefit_models:
             prefit_est = deepcopy(prefit_models[est_name])
 
-        print('Training ', est_name, X_train.shape, Y_train.shape, X_test.shape if X_test is not None else None)
+        # print('Training ', est_name, X_train.shape, Y_train.shape, X_test.shape if X_test is not None else None)
         est, Y_pred = est_def['train'](X_train, Y_train, X_test, prefit_est)
 
         if Y_pred is not None:
@@ -289,14 +294,18 @@ def run_training(d, cv, pan_site_estimators, per_site_estimators, meta_estimator
     return results
 
 
+# ################# #
+# Storage Functions #
+# ################# #
+
 def get_result_description(notes):
     desc = 'RX Sensitivity Training Results Description\n*Created At {}\n'.format(pd.to_datetime('now'))
     return desc + notes
 
 
-def save_training_results(results, version_number, description):
+def save_training_results(results, training_type, version_number, description):
 
-    model_res_path = os.path.join(TRAINING_RES_PATH, version_number)
+    model_res_path = os.path.join(TRAINING_RES_PATH, training_type, version_number)
     if not os.path.exists(model_res_path):
         os.mkdir(model_res_path)
 
@@ -307,9 +316,49 @@ def save_training_results(results, version_number, description):
 
     # Save actual result data
     model_res_file = os.path.join(model_res_path, 'results.pkl')
-    io_utils.to_pickle(results, model_res_file, obj_name='RX Sensitivity Results')
+    io_utils.to_pickle(results, model_res_file, obj_name='Training Results')
 
     return model_res_path
 
-def get_training_results(version_number):
-    
+
+def get_training_result_versions(training_type):
+    return [f for f in os.listdir(os.path.join(TRAINING_RES_PATH, training_type)) if f.startswith('v')]
+
+
+def get_training_results(training_type, version_number):
+    model_res_file = os.path.join(TRAINING_RES_PATH, training_type, version_number, 'results.pkl')
+    return io_utils.from_pickle(model_res_file, obj_name='Training Results')
+
+
+# ################## #
+# Analysis Functions #
+# ################## #
+
+def get_scores(d_pred, score_functions):
+    c_actual = [c for c in d_pred if c[-1] == 'Actual']
+    c_pred = d_pred.columns.difference(c_actual)
+    d_score = []
+    for c_act in c_actual:
+        drug_name = c_act[-2]
+        c_drug_pred = [c for c in c_pred if c[-2] == drug_name]
+        for c_pre in c_drug_pred:
+            model_name = c_pre[-1]
+
+            def get_group_scores(g):
+                g_sub = g[(g[c_act].notnull()) & (g[c_pre].notnull())]
+                return pd.Series({s: fn(g_sub[c_act], g_sub[c_pre]) for s, fn in score_functions.items()})
+
+            d = (
+                d_pred[[c_pre, c_act]]
+                .groupby(d_pred.index.get_level_values('FOLD_ID'))\
+                .apply(get_group_scores)
+            )
+            d['DRUG_NAME'] = drug_name
+            d['MODEL_NAME'] = model_name
+            d_score.append(d)
+
+    return pd.melt(
+        pd.concat(d_score).reset_index(),
+        id_vars=['DRUG_NAME', 'MODEL_NAME', 'FOLD_ID'],
+        value_name='VALUE', var_name='METRIC'
+    )
