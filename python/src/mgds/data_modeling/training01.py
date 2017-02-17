@@ -3,11 +3,13 @@ import pandas as pd
 import numpy as np
 import os
 from copy import deepcopy
-from sklearn.model_selection import KFold
-from py_utils import io_utils
+from sklearn.model_selection import StratifiedKFold
+from py_utils import io_utils, collection_utils
 import collections
 import logging
 logger = logging.getLogger(__name__)
+
+import pdb
 
 TRAINING_RES_PATH = '/Users/eczech/data/research/mgds/modeling/rx/results'
 
@@ -24,7 +26,38 @@ def _validate_fold(folds, i, j, k):
         len(folds[i]['inner'][j]['inner'][k]['train']) + len(folds[i]['inner'][j]['inner'][k]['test'])
 
 
-def get_cv_folds(d, sites=None, n_split1=5, n_split2=3, random_state=None):
+def restrict_training_data(d, feature_selectors, response_selectors):
+    """
+    Filter rows of training data to only those with at least one non-null feature AND response
+
+    :param d: Training data frame
+    :param feature_selectors: List of functions to accept a data frame and return list of feature names
+    :param response_selectors: List of functions to accept a data frame and return list of response names
+    """
+
+    cX = set()
+    for s in feature_selectors:
+        cX.update(set(s(d)))
+    cX = list(cX)
+
+    cY = set()
+    for s in response_selectors:
+        cY.update(set(s(d)))
+    cY = list(cY)
+
+    # Remove bad records
+    mask = (d[list(cX)].isnull().all(axis=1)) | (d[list(cY)].isnull().all(axis=1))
+    d = collection_utils.subset(
+            d, lambda df: df[~mask.values],
+            subset_op='Remove rows with all null features OR all null responses'
+    )
+
+    # Return training data restricted to only necessary columns
+    return d[cX + cY], cX, cY
+
+
+def get_cv_folds(d, y, sites=None, n_split1=5, n_split2=3, random_state=None):
+
     idx = pd.Series(np.arange(len(d)))
     all_sites = d.index.get_level_values('PRIMARY_SITE:MGDS')
 
@@ -42,19 +75,19 @@ def get_cv_folds(d, sites=None, n_split1=5, n_split2=3, random_state=None):
             'site': site,
             'inner': collections.OrderedDict()
         }
-        cv_1 = KFold(n_splits=n_split1, random_state=random_state, shuffle=True)
+        cv_1 = StratifiedKFold(n_splits=n_split1, random_state=random_state, shuffle=True)
         idx_1 = folds[i]['test']
 
-        for j, (train_1, test_1) in enumerate(cv_1.split(idx_1)):
+        for j, (train_1, test_1) in enumerate(cv_1.split(idx_1, y.iloc[idx_1])):
             folds[i]['inner'][j] = {
                 'train': idx_1.iloc[train_1],
                 'test': idx_1.iloc[test_1],
                 'inner': collections.OrderedDict()
             }
-            cv_2 = KFold(n_splits=n_split2, random_state=random_state, shuffle=True)
+            cv_2 = StratifiedKFold(n_splits=n_split2, random_state=random_state, shuffle=True)
             idx_2 = folds[i]['inner'][j]['train']
 
-            for k, (train_2, test_2) in enumerate(cv_2.split(idx_2)):
+            for k, (train_2, test_2) in enumerate(cv_2.split(idx_2, y.iloc[idx_2])):
                 folds[i]['inner'][j]['inner'][k] = {
                     'train': idx_2.iloc[train_2],
                     'test': idx_2.iloc[test_2]
@@ -94,7 +127,12 @@ def train_models(models, d_train, d_test=None, prefit_models=None, include_predi
         if prefit_models is not None and est_name in prefit_models:
             prefit_est = deepcopy(prefit_models[est_name])
 
-        # print('Training ', est_name, X_train.shape, Y_train.shape, X_test.shape if X_test is not None else None)
+        X_na_pct = X_train.isnull().sum().sum() / (X_train.shape[0] * X_train.shape[1])
+        Y_na_pct = Y_train.isnull().sum().sum() / (Y_train.shape[0] * Y_train.shape[1])
+        logger.info(
+                'Training estimator "{}" (X.shape = {}, X NA {}, Y.shape = {}, Y NA = {})'
+                .format(est_name, X_train.shape, round(100*X_na_pct, 2), Y_train.shape, round(100*Y_na_pct, 2))
+        )
         est, Y_pred = est_def['train'](X_train, Y_train, X_test, prefit_est)
 
         if Y_pred is not None:
@@ -205,6 +243,11 @@ def run_site_cv(d, site, cv, per_site_estimators, pan_site_estimators, meta_esti
 
         # Concatenate predictions from submodels into training set for meta model
         Y_feat_inner = pd.concat(Y_feat_inner)
+        # This could be assumed true at this point prior to letting some models return no predictions on
+        # inner folds so instead, the outer fold features can just be subsetted to the inner ones
+        # assert Y_feat_inner.columns.equals(Y_feat_outer.columns)
+
+        Y_feat_outer = Y_feat_outer[Y_feat_inner.columns]
         assert Y_feat_inner.columns.equals(Y_feat_outer.columns)
 
         logger.debug(
@@ -220,9 +263,13 @@ def run_site_cv(d, site, cv, per_site_estimators, pan_site_estimators, meta_esti
         )
 
         Y_pred_meta.columns = [strip_actual_label(c) for c in Y_pred_meta]
+        Y_pred_meta = Y_pred_meta[Y_pred_meta.columns.sort_values()]
         Y_true_meta.columns = [strip_actual_label(c) for c in Y_true_meta]
+        Y_true_meta = Y_true_meta[Y_true_meta.columns.sort_values()]
 
-        assert Y_true_meta.equals(Y_true_outer)
+        # Ensure these are equal so they can be chosen arbitrarily
+        assert Y_true_meta.equals(Y_true_outer[Y_true_outer.columns.sort_values()])
+
         Y_pred = pd.concat([
             Y_pred_outer,
             Y_pred_meta,
@@ -243,6 +290,7 @@ def run_training(d, cv, pan_site_estimators, per_site_estimators, meta_estimator
     results = {}
 
     # Fit pan-site models across entire dataset (all sites)
+    logger.info('Training pan site refit models across all sites ...')
     pan_site_refit_models = train_models(pan_site_estimators, d)
 
     for i_site in cv:
@@ -322,7 +370,7 @@ def save_training_results(results, training_type, version_number, description):
 
 
 def get_training_result_versions(training_type):
-    return [f for f in os.listdir(os.path.join(TRAINING_RES_PATH, training_type)) if f.startswith('v')]
+    return [f for f in os.listdir(os.path.join(TRAINING_RES_PATH, training_type))]
 
 
 def get_training_results(training_type, version_number):
