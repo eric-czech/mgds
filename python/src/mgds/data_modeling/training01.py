@@ -130,8 +130,8 @@ def train_models(models, d_train, d_test=None, prefit_models=None, include_predi
         X_na_pct = X_train.isnull().sum().sum() / (X_train.shape[0] * X_train.shape[1])
         Y_na_pct = Y_train.isnull().sum().sum() / (Y_train.shape[0] * Y_train.shape[1])
         logger.info(
-                'Training estimator "{}" (X.shape = {}, X NA {}, Y.shape = {}, Y NA = {})'
-                .format(est_name, X_train.shape, round(100*X_na_pct, 2), Y_train.shape, round(100*Y_na_pct, 2))
+                'Training estimator "{}" (X.shape = {}, X NA {}, Y.shape = {}, Y NA = {}, Y_test.shape = {})'
+                .format(est_name, X_train.shape, round(100*X_na_pct, 2), Y_train.shape, round(100*Y_na_pct, 2), Y_test.shape if Y_test is not None else None)
         )
         est, Y_pred = est_def['train'](X_train, Y_train, X_test, prefit_est)
 
@@ -387,8 +387,9 @@ def get_scores(d_pred, score_functions):
     c_pred = d_pred.columns.difference(c_actual)
     d_score = []
     for c_act in c_actual:
-        drug_name = c_act[-2]
-        c_drug_pred = [c for c in c_pred if c[-2] == drug_name]
+        source_name = c_act[0]
+        drug_name = c_act[0] + ':' + c_act[-2]
+        c_drug_pred = [c for c in c_pred if c[-2] == c_act[-2] and c[0] == c_act[0]]
         for c_pre in c_drug_pred:
             model_name = c_pre[-1]
 
@@ -398,15 +399,16 @@ def get_scores(d_pred, score_functions):
 
             d = (
                 d_pred[[c_pre, c_act]]
-                .groupby(d_pred.index.get_level_values('FOLD_ID'))\
+                .groupby(d_pred.index.get_level_values('FOLD_ID'))
                 .apply(get_group_scores)
             )
-            d['DRUG_NAME'] = drug_name
+            d['SOURCE'] = source_name
+            d['DRUG'] = drug_name
             d['MODEL_NAME'] = model_name
             d_score.append(d)
 
     return pd.melt(
         pd.concat(d_score).reset_index(),
-        id_vars=['DRUG_NAME', 'MODEL_NAME', 'FOLD_ID'],
+        id_vars=['SOURCE', 'DRUG', 'MODEL_NAME', 'FOLD_ID'],
         value_name='VALUE', var_name='METRIC'
     )
