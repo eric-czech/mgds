@@ -1,0 +1,10 @@
+COSMIC Paper ML Results
+
+Paper:
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4967469
+
+ML Result Data:
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4967469/bin/mmc7.xlsx
+
+Experimental Procedures
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4967469/bin/mmc1.pdf
