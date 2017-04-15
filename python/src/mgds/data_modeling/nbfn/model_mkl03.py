@@ -54,8 +54,8 @@ class MTKLModel(ed_models.BayesianModel):
         A = Dirichlet(alpha=5.*tf.ones(Ng))
         # qA = Dirichlet(alpha=tf.nn.softplus(tf.Variable(tf.random_normal([n_src]))))
         #qA = PointMass(params=tf.nn.softplus(tf.Variable(tf.random_normal([Ng]))))
-        qA = PointMass(params=tf.nn.softplus(tf.Variable(tf.ones(Ng, dtype=tf.float32))))
-        #qA = PointMass(params=tf.nn.softplus(tf.ones(Ng, dtype=tf.float32)))
+        #qA = PointMass(params=tf.nn.softplus(tf.Variable(tf.ones(Ng, dtype=tf.float32))))
+        qA = PointMass(params=tf.ones(Ng, dtype=tf.float32))
         latent_map[A] = qA
         param_ct['qA'] = Ng
         tensor_map['qA'] = qA
@@ -70,8 +70,8 @@ class MTKLModel(ed_models.BayesianModel):
             tf.summary.scalar('p_{}'.format(group_name), tf.gather(qAp, i))
 
             # Initialize observation weight matrix for group
-            # Wi = Normal(mu=tf.zeros([N, Ti]), sigma=.3*tf.ones([N, Ti]))
-            Wi = Laplace(loc=tf.zeros([N, Ti]), scale=1.*tf.ones([N, Ti]))
+            Wi = Normal(mu=tf.zeros([N, Ti]), sigma=1.*tf.ones([N, Ti]))
+            # Wi = Laplace(loc=tf.zeros([N, Ti]), scale=1.*tf.ones([N, Ti]))
             qWi = PointMass(params=tf.Variable(tf.random_normal([N, Ti], stddev=.1), name='W{}'.format(i)))
             latent_map[Wi] = qWi
             tensor_map['qW{}'.format(group_name)] = qWi.params
@@ -79,8 +79,8 @@ class MTKLModel(ed_models.BayesianModel):
             tf.summary.histogram('qW{}'.format(group_name), qWi.params)
 
             # Initialize intercept for group
-            # Bi = Normal(mu=tf.zeros([1, Ti]), sigma=1.*tf.ones([1, Ti]))
-            Bi = Laplace(loc=tf.zeros([1, Ti]), scale=1.*tf.ones([1, Ti]))
+            Bi = Normal(mu=tf.zeros([1, Ti]), sigma=1.*tf.ones([1, Ti]))
+            # Bi = Laplace(loc=tf.zeros([1, Ti]), scale=1.*tf.ones([1, Ti]))
             qBi = PointMass(params=tf.Variable(tf.random_normal([1, Ti], stddev=.1), name='B{}'.format(i)))
             latent_map[Bi] = qBi
             tensor_map['qB{}'.format(group_name)] = qBi.params
@@ -112,8 +112,8 @@ class MTKLModel(ed_models.BayesianModel):
             Yi_mu = tf.matmul(Ki, Wi) + Bi
             assert Yi_mu.get_shape().as_list() == [Ni, Ti]
 
-            Yi = StudentT(df=3.*tf.ones([Ni, Ti]), mu=Yi_mu, sigma=.5 * tf.ones([Ni, Ti]))
-            #Yi = Normal(mu=Yi_mu, sigma=1. * tf.ones([Ni, Ti]))
+            #Yi = StudentT(df=3.*tf.ones([Ni, Ti]), mu=Yi_mu, sigma=.5 * tf.ones([Ni, Ti]))
+            Yi = Normal(mu=Yi_mu, sigma=.3 * tf.ones([Ni, Ti]))
             assert Yi.get_shape().as_list() == [Ni, Ti]
 
             qYi = tf.matmul(Ki, qWi.params) + qBi.params
