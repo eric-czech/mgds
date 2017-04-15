@@ -8,6 +8,8 @@ from mgds.data_aggregation import data_type as dtyp
 from mgds.data_modeling import data as feature_data
 from mgds.data_modeling.nbfn import drugs as nbfn_drugs
 from sklearn.preprocessing import Imputer
+from sklearn.metrics import mean_squared_error, r2_score
+from py_utils import collection_utils
 import logging
 logger = logging.getLogger(__name__)
 
@@ -97,55 +99,109 @@ def gen_agg_data(d, src1, src2, data_type):
     return d3
 
 
-def get_rx_modeling_data(drugs=nbfn_drugs.GDSC_PAPER_DRUGS, genes=None):
+def get_rx_modeling_data(drugs=nbfn_drugs.GDSC_PAPER_DRUGS, genes=None,
+                         ge_src='agg', rx_src=src.GDSC_v2, na_y_thresh=.3, site='BREAST', verify=True):
 
     """
     Return X, Y dataset where:
     - X: Averaged CCLE and GDSC gene expression data for given gene set (or all if no filter given)
     - Y: GDSC drug sensitivity for cell lines
 
-    All data is restricted to breast cancer samples at the moment 
+    All data is restricted to breast cancer samples at the moment
     """
     # Load all genomic data
     datasets = api.get_genomic_data_availability()
     d = db.cache_prep_operation(lambda: feature_data.get_feature_datasets(datasets), 'raw-features', overwrite=False)
 
-    # Combine ccle and gdsc GE into one dataset
-    d_agg_ge = gen_agg_data(d, src.CCLE_v1, src.GDSC_v2, dtyp.GENE_EXPRESSION)
-    d_agg_ge.columns = pd.MultiIndex.from_tuples([('agg', dtyp.GENE_EXPRESSION, c) for c in d_agg_ge])
-    d_agg_ge.head()
 
-    # Concat aggregated data to original
-    n_before = len(d)
-    d = pd.concat([d, d_agg_ge], axis=1)
-    assert len(d) == n_before
+    # #### Prep Features #### #
+    if ge_src == 'agg':
+        # Combine ccle and gdsc GE into one dataset
+        d_agg_ge = gen_agg_data(d, src.CCLE_v1, src.GDSC_v2, dtyp.GENE_EXPRESSION)
+        d_agg_ge.columns = pd.MultiIndex.from_tuples([('agg', dtyp.GENE_EXPRESSION, c) for c in d_agg_ge])
+        d_agg_ge.head()
 
-    # Prep
-    def select_drug(c):
-        return c[0] == src.GDSC_v2 and c[1] == dtyp.DRUG_SENSITIVITY and c[2] in drugs
+        # Concat aggregated data to original
+        n_before = len(d)
+        d = pd.concat([d, d_agg_ge], axis=1)
+        assert len(d) == n_before
 
-    X = d[('agg', dtyp.GENE_EXPRESSION)]
+        X = d[('agg', dtyp.GENE_EXPRESSION)]
+    else:
+        X = d[(ge_src, dtyp.GENE_EXPRESSION)]
 
     # Restrict to shared genes
     if genes is not None:
         X = X[list(np.intersect1d(X.columns.tolist(), genes))]
 
+    # #### Prep Responses #### #
+    def select_drug(c):
+        if drugs is None:
+            return c[0] == rx_src and c[1] == dtyp.DRUG_SENSITIVITY
+        return c[0] == rx_src and c[1] == dtyp.DRUG_SENSITIVITY and c[2] in drugs
+
     Y = d[[c for c in d if select_drug(c)]]
     Y.columns = [c[-1] for c in Y]
 
-    na_mask = X.isnull().all(axis=1)
-    X, Y = X[~na_mask], Y[~na_mask]
+    # Remove records based on certain conditions
+    # na_mask = X.isnull().all(axis=1)
+    na_mask = X.isnull().any(axis=1)  # Should this be based on some threshold too?
+    X = collection_utils.subset(X, lambda df: df[~na_mask], subset_op='Remove X records with null X values')
+    Y = collection_utils.subset(Y, lambda df: df[~na_mask], subset_op='Remove Y records with null X values')
 
-    site_mask = X.index.get_level_values('PRIMARY_SITE:MGDS') == 'BREAST'
+    na_mask = Y.isnull().all(axis=1)
+    X = collection_utils.subset(X, lambda df: df[~na_mask], subset_op='Remove X records with null Y values')
+    Y = collection_utils.subset(Y, lambda df: df[~na_mask], subset_op='Remove Y records with null Y values')
+
+    site_mask = X.index.get_level_values('PRIMARY_SITE:MGDS') == site
     X, Y = X[site_mask], Y[site_mask]
 
-    # Remove drugs with less than 30 non-null entries
-    na_y = Y.notnull().sum(axis=0)
-    Y = Y.loc[:, list(na_y[na_y >= 30].index.values)]
+    if len(X) == 0:
+        raise ValueError('All data removed by null filters')
+
+    # # Remove drugs with less than na_y_thresh non-null entries
+    na_y = Y.notnull().sum(axis=0) / len(Y)
+    keep_y = list(na_y[na_y >= na_y_thresh].index.values)
+    n_y = Y.shape[1]
+    if len(keep_y) != n_y:
+        logger.info(
+            'Removing {} drugs of {} due to having more than {}% null records'
+            .format(n_y - len(keep_y), n_y, 100*na_y_thresh)
+        )
+        Y = Y.loc[:, keep_y]
 
     # X must be all non-null and while Y values can be null,
     # none can be entirely null
-    assert np.all(X.notnull())
-    assert not np.any(Y.isnull().all(axis=0))
+    if verify:
+        assert np.all(X.notnull())
+        assert not np.any(Y.isnull().all(axis=0))
 
     return X, Y
+
+
+def stack_predictions(Y_pred, Y_test):
+    Y_pred = pd.DataFrame(Y_pred, index=Y_test.index, columns=Y_test.columns)
+    Y_pred.columns.name = 'Task'
+    Y_pred.index.name = 'Sample'
+    Y_pred = Y_pred.stack()
+    Y_pred.name = 'Pred'
+
+    Y_true = Y_test.copy()
+    Y_true.columns.name = 'Task'
+    Y_true.index.name = 'Sample'
+    Y_true = Y_true.stack()
+    Y_true.name = 'Actual'
+
+    d_pred = pd.concat([Y_pred, Y_true], axis=1)
+    return d_pred
+
+
+SCORE_FN_MSE = lambda g: mean_squared_error(g['Actual'], g['Pred'])
+SCORE_FN_R2 = lambda g: r2_score(g['Actual'], g['Pred'])
+SCORE_FN_PEARSON = lambda g: g['Actual'].corr(g['Pred'], method='pearson')
+SCORE_FN_SPEARMAN = lambda g: g['Actual'].corr(g['Pred'], method='spearman')
+
+
+def score_predictions(d, score_fn):
+    d_score = d.groupby(['Model', 'Fold', 'Task']).apply(score_fn).rename('Score').reset_index()
+    return d_score.groupby(['Model', 'Task'])['Score'].describe().unstack().reset_index()
