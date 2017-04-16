@@ -111,6 +111,7 @@ class MTKLModel(ed_models.BayesianModel):
 
         def input_fn(d):
             return {YR: dY_rppa, YD: dY_drug}
+            # return {YD: dY_drug}
 
         return input_fn, lv, tm
 
