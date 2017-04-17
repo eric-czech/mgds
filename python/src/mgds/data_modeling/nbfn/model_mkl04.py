@@ -67,7 +67,8 @@ class MTKLModel(ed_models.BayesianModel):
         K_rppa = tf.constant(dK_rppa, dtype=tf.float32)
         K_drug = tf.constant(dK_drug, dtype=tf.float32)
 
-        H = Normal(mu=tf.zeros([N1, T1]), sigma=1.*tf.ones([N1, T1]))
+        H = Normal(mu=tf.zeros([N1, T1]), sigma=1.*tf.ones([N1, T1])) # Original Model
+        # H = Normal(mu=tf.zeros([N1, T1]), sigma=.5*tf.ones([N1, T1]))
         qH = PointMass(params=tf.Variable(tf.random_normal([N1, T1], stddev=.1), name='H'))
         tm['qH'] = qH.params
         lv[H] = qH
@@ -85,6 +86,7 @@ class MTKLModel(ed_models.BayesianModel):
         lv[B] = qB
 
 
+        # YR_sig = .1 # Original Model
         YR_sig = .1
         YR_mu = tf.matmul(K_rppa, H)  # N1 x T1
         YR = Normal(mu=YR_mu, sigma=YR_sig * tf.ones([N1, T1]))
@@ -93,6 +95,7 @@ class MTKLModel(ed_models.BayesianModel):
         YRD = Normal(mu=YRD_mu, sigma=YR_sig * tf.ones([N2, T1]))
 
         YD_mu = tf.matmul(YRD, W) + B  # N2 x T2
+        # YD = Normal(mu=YD_mu, sigma=1.*tf.ones([N2, T2])) # Original Model
         YD = Normal(mu=YD_mu, sigma=1.*tf.ones([N2, T2]))
 
         qYR = tf.matmul(K_rppa, qH.params)
