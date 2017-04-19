@@ -1,0 +1,39 @@
+# Delete everything in reports/compile_01 except this script
+
+cd /Users/eczech/repos/mgds/python/notebook/data_modeling/kl_modeling
+mkdir -p reports/compile_01
+
+mkdir -p reports/compile_01/docs/images
+cp docs/images/* reports/compile_01/docs/images/
+
+mkdir -p reports/compile_01/results/simulations/large
+cp results/simulations/large/perf_scores_pearson.html reports/compile_01/results/simulations/large/
+cp results/simulations/large/pred_sample.png reports/compile_01/results/simulations/large/
+cp results/simulations/large/weight_estimate_lasso.html reports/compile_01/results/simulations/large/
+cp results/simulations/large/weight_estimate_tkm.html reports/compile_01/results/simulations/large/
+
+mkdir -p reports/compile_01/results/simulations/small
+cp results/simulations/small/perf_scores_pearson.html reports/compile_01/results/simulations/small/
+cp results/simulations/small/pred_sample.png reports/compile_01/results/simulations/small/
+cp results/simulations/small/weight_estimate_lasso.html reports/compile_01/results/simulations/small/
+cp results/simulations/small/weight_estimate_tkm.html reports/compile_01/results/simulations/small/
+
+mkdir -p reports/compile_01/results/breast_cancer/cv_small
+cp results/breast_cancer/cv_small/pred_top_drugs.png reports/compile_01/results/breast_cancer/cv_small/
+cp results/breast_cancer/cv_small/perf_box_pearson.html reports/compile_01/results/breast_cancer/cv_small/
+cp results/breast_cancer/cv_small/rppa_weight_all.html reports/compile_01/results/breast_cancer/cv_small/
+cp results/breast_cancer/cv_small/rppa_weight_best.html reports/compile_01/results/breast_cancer/cv_small/
+
+mkdir -p reports/compile_01/results/breast_cancer/cv_large
+cp results/breast_cancer/cv_large/pred_top_drugs.png reports/compile_01/results/breast_cancer/cv_large/
+cp results/breast_cancer/cv_large/perf_box_pearson.html reports/compile_01/results/breast_cancer/cv_large/
+cp results/breast_cancer/cv_large/rppa_weight_all.html reports/compile_01/results/breast_cancer/cv_large/
+cp results/breast_cancer/cv_large/rppa_weight_best.html reports/compile_01/results/breast_cancer/cv_large/
+cp results/breast_cancer/cv_large/pred_top_drugs_sens_mkl.html reports/compile_01/results/breast_cancer/cv_large/
+cp results/breast_cancer/cv_large/rppa_weight_best_and_sensitive.html reports/compile_01/results/breast_cancer/cv_large/
+
+cp transfer_kernel_project.html reports/compile_01/drug_sensitivity_prediction_project.html
+
+# Create archive
+cd reports/compile_01
+zip -r drug_sensitivity_prediction_project.zip *
