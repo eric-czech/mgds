@@ -129,11 +129,21 @@ class MTKLModel(ed_models.BayesianModel):
             Y_drug = np.matmul(Y_rppa, W) + B
             return self.y_drug_scaler.inverse_transform(Y_drug)
 
+        def rppa_pred_fn(X):
+            dK_rppa = compute_kernel(self.x_rppa_scaler.transform(X), tm['dX_rppa'], gamma=self.gamma)
+            Y_rppa = np.matmul(dK_rppa, H)
+            return self.y_rppa_scaler.inverse_transform(Y_rppa)
+
         def drug_pred_train_fn():
             return self.y_drug_scaler.inverse_transform(sess.run(tm['qYD']))
 
         def rppa_pred_train_fn():
             return self.y_rppa_scaler.inverse_transform(sess.run(tm['qYR']))
 
-        return drug_pred_fn, drug_pred_train_fn, rppa_pred_train_fn
+        return {
+            'pred_fn': drug_pred_fn,
+            'pred_train_fn': drug_pred_train_fn,
+            'pred_rppa_train_fn': rppa_pred_train_fn,
+            'pred_rppa_fn': rppa_pred_fn
+        }
 
