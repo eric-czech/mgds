@@ -17,9 +17,8 @@ def compute_kernel(X, Xs=None, gamma=None):
 class MTKLModel(ed_models.BayesianModel):
 
     def __init__(self, X_rppa, Y_rppa, gamma=None, print_kernel_stats=True,
-                 h_scale=.5, rppa_scale=.3, rx_scale=.3, w_scale=1.):
+                 h_scale=.5, rppa_scale=.3, rx_scale=.3, rppa_rx_scale=.3, w_scale=1.):
         self.initialize()
-        self.gamma = gamma
         self.X_rppa = X_rppa
         self.Y_rppa = Y_rppa
         self.print_kernel_stats = print_kernel_stats
@@ -27,6 +26,12 @@ class MTKLModel(ed_models.BayesianModel):
         self.rppa_scale = rppa_scale
         self.rx_scale = rx_scale
         self.w_scale = w_scale
+        self.rppa_rx_scale = rppa_rx_scale
+        self.gamma = gamma
+        # if gamma is None:
+        #     self.gamma = 1. / X_rppa.shape[0]
+        # else:
+        #     self.gamma = gamma
 
     def initialize(self):
         self.x_rppa_scaler = StandardScaler()
@@ -69,16 +74,16 @@ class MTKLModel(ed_models.BayesianModel):
         K_rppa = tf.constant(dK_rppa, dtype=tf.float32)
         K_drug = tf.constant(dK_drug, dtype=tf.float32)
 
-        #H = Laplace(loc=tf.zeros([N1, T1]), scale=self.h_scale * tf.ones([N1, T1]))
+        # H = Laplace(loc=tf.zeros([N1, T1]), scale=self.h_scale * tf.ones([N1, T1]))
         H = Normal(mu=tf.zeros([N1, T1]), sigma=self.h_scale * tf.ones([N1, T1]))
-        qH = PointMass(params=tf.Variable(tf.random_normal([N1, T1], stddev=.1), name='H'))
+        qH = PointMass(params=tf.Variable(tf.random_normal([N1, T1], stddev=.01), name='H'))
         tm['qH'] = qH.params
         lv[H] = qH
         # tf.summary.histogram('qH', tm['qH'])
 
-        # W = Normal(mu=tf.zeros([T1, T2]), sigma=1.*tf.ones([T1, T2]))
+        # W = Normal(mu=tf.zeros([T1, T2]), sigma=self.w_scale * tf.ones([T1, T2]))
         W = Laplace(loc=tf.zeros([T1, T2]), scale=self.w_scale * tf.ones([T1, T2]))
-        qW = PointMass(params=tf.Variable(tf.random_normal([T1, T2], stddev=.1), name='W'))
+        qW = PointMass(params=tf.Variable(tf.random_normal([T1, T2], stddev=.01), name='W'))
         tm['qW'] = qW.params
         lv[W] = qW
 
@@ -92,7 +97,8 @@ class MTKLModel(ed_models.BayesianModel):
 
         # YRD = tf.matmul(K_drug, H)  # N2 x T1
         YRD_mu = tf.matmul(K_drug, H)  # N2 x T1
-        YRD = Normal(mu=YRD_mu, sigma=self.rppa_scale * tf.ones([N2, T1]))
+        YRD = Normal(mu=YRD_mu, sigma=self.rppa_rx_scale * tf.ones([N2, T1]))
+        # tm['YRD_mu'] = YRD_mu
 
         YD_mu = tf.matmul(YRD, W)  # + B  # N2 x T2
         YD = Normal(mu=YD_mu, sigma=self.rx_scale * tf.ones([N2, T2]))
@@ -110,6 +116,8 @@ class MTKLModel(ed_models.BayesianModel):
 
         mse_drug = tf.reduce_mean(tf.square(qYD - tf.constant(dY_drug, dtype=tf.float32)), axis=0)
         tf.summary.scalar('mse_drug', tf.reduce_mean(mse_drug))
+
+        tf.summary.histogram('YRD', YRD)
 
         def input_fn(d):
             return {YR: dY_rppa, YD: dY_drug}
