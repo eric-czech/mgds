@@ -179,12 +179,12 @@ def get_rx_modeling_data(drugs=nbfn_drugs.GDSC_PAPER_DRUGS, genes=None,
     return X, Y
 
 
-def stack_predictions(Y_pred, Y_test):
+def stack_predictions(Y_pred, Y_test, pred_name='Pred'):
     Y_pred = pd.DataFrame(Y_pred, index=Y_test.index, columns=Y_test.columns)
     Y_pred.columns.name = 'Task'
     Y_pred.index.name = 'Sample'
     Y_pred = Y_pred.stack()
-    Y_pred.name = 'Pred'
+    Y_pred.name = pred_name
 
     Y_true = Y_test.copy()
     Y_true.columns.name = 'Task'

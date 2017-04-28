@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 from edward.models import Normal, Gamma, Laplace, NormalWithSoftplusSigma, GammaWithSoftplusAlphaBeta
-from edward.models import PointMass, InverseGamma, Uniform, StudentT
+from edward.models import PointMass, InverseGamma, Uniform, StudentT, Beta
 from ml.edward import models as ed_models
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics.pairwise import rbf_kernel
@@ -92,24 +92,37 @@ class MTKLModel(ed_models.BayesianModel):
         # tm['qB'] = qB.params
         # lv[B] = qB
 
+        # Stochastic Components
         YR_mu = tf.matmul(K_rppa, H)  # N1 x T1
         YR = Normal(mu=YR_mu, sigma=self.rppa_scale * tf.ones([N1, T1]))
 
         # YRD = tf.matmul(K_drug, H)  # N2 x T1
         YRD_mu = tf.matmul(K_drug, H)  # N2 x T1
+        #YRD_sd = tf.reduce_mean(tf.square(YRD_mu - tf.reduce_mean(YRD_mu, axis=0)), axis=0)
+        #tm['YRD_sd'] = YRD_sd
+
+        # YRD = Normal(mu=YRD_mu, sigma=self.rppa_rx_scale * (YRD_sd * tf.ones([N2, T1], dtype=tf.float32)))
         YRD = Normal(mu=YRD_mu, sigma=self.rppa_rx_scale * tf.ones([N2, T1]))
         # tm['YRD_mu'] = YRD_mu
 
         YD_mu = tf.matmul(YRD, W)  # + B  # N2 x T2
         YD = Normal(mu=YD_mu, sigma=self.rx_scale * tf.ones([N2, T2]))
 
+        # Static Components
         qYR = tf.matmul(K_rppa, qH.params)
         assert qYR.get_shape().as_list() == [N1, T1]
         tm['qYR'] = qYR
 
-        qYD = tf.matmul(tf.matmul(K_drug, qH.params), qW.params)  # + qB.params
+        qYRD = tf.matmul(K_drug, qH.params)
+        qYD = tf.matmul(qYRD, qW.params)  # + qB.params
         assert qYD.get_shape().as_list() == [N2, T2]
         tm['qYD'] = qYD
+
+        # Add scaled weight
+        qYRD_sd = tf.reduce_mean(tf.square(qYRD - tf.reduce_mean(qYRD, axis=0)), axis=0, keep_dims=True)
+        qW_scale = tf.transpose(qYRD_sd) * qW.params
+        tm['qW_scale'] = qW_scale
+        tm['qYRD_sd'] = qYRD_sd
 
         mse_rppa = tf.reduce_mean(tf.square(qYR - tf.constant(dY_rppa, dtype=tf.float32)), axis=0)
         tf.summary.scalar('mse_rppa', tf.reduce_mean(mse_rppa))
@@ -118,6 +131,8 @@ class MTKLModel(ed_models.BayesianModel):
         tf.summary.scalar('mse_drug', tf.reduce_mean(mse_drug))
 
         tf.summary.histogram('YRD', YRD)
+        # tf.summary.histogram('qYRD_sd', self.rppa_rx_scale * qYRD_sd.params)
+        tf.summary.histogram('qW_scale', qW_scale)
 
         def input_fn(d):
             return {YR: dY_rppa, YD: dY_drug}
@@ -128,16 +143,21 @@ class MTKLModel(ed_models.BayesianModel):
     def criticism_args(self, sess, tm):
         H = sess.run(tm['qH'])
         W = sess.run(tm['qW'])
+        # YRD_sd = sess.run(tm['YRD_sd'])
         # B = sess.run(tm['qB'])
 
-        def drug_pred_fn(X):
-            dK_drug = compute_kernel(self.x_drug_scaler.transform(X), tm['dX_rppa'], gamma=self.gamma)
+        def drug_pred_fn(X, scale=True):
+            if scale:
+                X = self.x_drug_scaler.transform(X)
+            dK_drug = compute_kernel(X, tm['dX_rppa'], gamma=self.gamma)
             Y_rppa = np.matmul(dK_drug, H)
-            Y_drug = np.matmul(Y_rppa, W) #+ B
+            Y_drug = np.matmul(Y_rppa, W)
             return self.y_drug_scaler.inverse_transform(Y_drug)
 
-        def rppa_pred_fn(X):
-            dK_rppa = compute_kernel(self.x_rppa_scaler.transform(X), tm['dX_rppa'], gamma=self.gamma)
+        def rppa_pred_fn(X, scale=True):
+            if scale:
+                X = self.x_rppa_scaler.transform(X)
+            dK_rppa = compute_kernel(X, tm['dX_rppa'], gamma=self.gamma)
             Y_rppa = np.matmul(dK_rppa, H)
             return self.y_rppa_scaler.inverse_transform(Y_rppa)
 
@@ -153,4 +173,5 @@ class MTKLModel(ed_models.BayesianModel):
             'pred_rppa_train_fn': rppa_pred_train_fn,
             'pred_rppa_fn': rppa_pred_fn
         }
+
 
