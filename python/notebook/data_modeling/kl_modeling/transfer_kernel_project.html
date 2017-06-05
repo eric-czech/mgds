@@ -11768,7 +11768,7 @@ div#notebook {
 
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">IFrame</span><span class="p">,</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
@@ -11784,7 +11784,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -11817,24 +11817,6 @@ div#notebook {
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <center><h1>Cancer Treatment Effectiveness Prediction Project</h1></center>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="A-Few-Random-Notes">A Few Random Notes<a class="anchor-link" href="#A-Few-Random-Notes">&#182;</a></h3><ul>
-<li><strong>History</strong> - I started working on problems like this in my spare time about a year ago with Stephen Guest, a professor in the Labratory Medicine department at MUSC.  I mention that because it has taken a long time to gather, clean up, and join all the different datasets (many not referenced here) and I have in the past taken several different completely different approaches to the same problems.  A lot of that information helped me avoid needing to spend some time testing things here that I already knew would or wouldn't make sense, but I just wanted to make it clear that most everything here (other than the data) is new for me as of around April 11th.  In other words, I don't want you to think I'm copying and pasting a bunch of old work -- these are almost all recent things and I tried to work in subjects we talked about in class like Lasso/Ridge/ElasticNet Regression, PCA, SVMs, and my own application of kernels.</li>
-</ul>
-<ul>
-<li><strong>Graphics</strong> - I don't include many numbers in my results here because I try to put those numbers into the graphics as much as possible (so I don't have to have giant tables of numbers anywhere).  Most of the graphics then are interactive at least to the extent that you can see raw numbers by hovering and subsets of data by drawing a zoom box with the mouse (and double-clicking to reset the zoom)</li>
-</ul>
-<ul>
-<li><strong>Results</strong> - I wish I could say much more about the data in the "Most Promising Results" section yet but I'm going to meet with Stephen on Friday (Apr 19th) to talk about them.  I have no molecular bio background so I lean on him to let me know which of these things, if any, are meaningful in any kind of biological way.  What I am sure of though is that the drugs mentioned in that section do show real signs of efficacy and decent predictability, where my definition of "predictable" here is mostly calibrated by a few of the papers I mention later on (i.e. my best pearson correlations are similar to theirs).</li>
-</ul>
-
 </div>
 </div>
 </div>
@@ -11918,7 +11900,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">load_sample</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -11946,7 +11928,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">load_sample</span><span class="p">(</span><span class="s1">&#39;genomic_features.pkl&#39;</span><span class="p">)</span>
@@ -11960,7 +11942,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[3]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12090,7 +12072,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[16]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">load_sample</span><span class="p">(</span><span class="s1">&#39;rppa.pkl&#39;</span><span class="p">)</span>
@@ -12104,7 +12086,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[4]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12200,7 +12182,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">load_sample</span><span class="p">(</span><span class="s1">&#39;drug_sensitivity.pkl&#39;</span><span class="p">)</span>
@@ -12214,7 +12196,7 @@ div#notebook {
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[5]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 <div>
@@ -12326,7 +12308,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s1">&#39;docs/images/standard_prob.png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -15929,7 +15911,7 @@ ViXyEgAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s1">&#39;docs/images/extended_prob.png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -23867,7 +23849,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Necessary Libraries</span>
@@ -24083,7 +24065,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[10]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/small/perf_scores_pearson.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -24097,7 +24079,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[6]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[10]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24138,7 +24120,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/small/weight_estimate_tkm.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
@@ -24152,7 +24134,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24184,7 +24166,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/small/weight_estimate_lasso.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
@@ -24198,7 +24180,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[12]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24313,7 +24295,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[18]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/large/perf_scores_pearson.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -24327,7 +24309,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[13]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24359,7 +24341,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[22]:</div>
+<div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/large/weight_estimate_tkm.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
@@ -24373,7 +24355,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[22]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[14]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24405,7 +24387,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/simulations/large/weight_estimate_lasso.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
@@ -24419,7 +24401,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24549,7 +24531,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
+<div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_small/perf_box_pearson.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -24563,7 +24545,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[26]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[16]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -24595,7 +24577,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[25]:</div>
+<div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Predictions on top drugs for small CV:</span>
@@ -29766,7 +29748,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[60]:</div>
+<div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_small/rppa_weight_all.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
@@ -29780,7 +29762,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[60]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[18]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -29812,7 +29794,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[23]:</div>
+<div class="prompt input_prompt">In&nbsp;[19]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_small/rppa_weight_best.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -29826,7 +29808,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -29894,7 +29876,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[27]:</div>
+<div class="prompt input_prompt">In&nbsp;[20]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_large/perf_box_pearson.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -29908,7 +29890,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[27]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[20]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -29941,7 +29923,7 @@ AAAAAACAGPf/AOOFjTC30pSoAAAAAElFTkSuQmCC
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[21]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="s1">&#39;results/breast_cancer/cv_large/pred_top_drugs.png&#39;</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -44749,7 +44731,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[22]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_large/rppa_weight_all.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">650</span><span class="p">)</span>
@@ -44763,7 +44745,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[8]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[22]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -44868,7 +44850,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[15]:</div>
+<div class="prompt input_prompt">In&nbsp;[23]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_large/rppa_weight_best.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
@@ -44882,7 +44864,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[15]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[23]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -44942,7 +44924,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[33]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_large/pred_top_drugs_sens_mkl.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
@@ -44956,7 +44938,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[33]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[24]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -44989,7 +44971,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">IFrame</span><span class="p">(</span><span class="n">src</span><span class="o">=</span><span class="s1">&#39;results/breast_cancer/cv_large/rppa_weight_best_and_sensitive.html&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -45003,7 +44985,7 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[19]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[25]:</div>
 
 <div class="output_html rendered_html output_subarea output_execute_result">
 
@@ -45041,22 +45023,6 @@ AAAAAAAAAAAAAAAAAF+Ntj2+Ph6ZngAAAABJRU5ErkJggg==
 <li><strong>Including More Sources</strong> - I think that I could continue adding more more sources like expression and drug sensitivity for lung cancer (instead of breast cancer) and have all of them share the kernel weight matrix.  I don't know if that would help, but it may be an interesting experiment.</li>
 <li><strong>Including Different Types of Genomic Data</strong> - Given the method used in the winning solution in <a href="http://www.nature.com/nbt/journal/v32/n12/full/nbt.2877.html">A community effort to assess and improve drug sensitivity prediction algorithms</a>, I think it stands to reason that there could be something useful in including data like Gene Mutations and Gene Methylation (rather than just expression) all with some kind of shared kernel weighting matrix.</li>
 </ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered">
-<div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p><hr></p>
-<center><h1><a id="questions">Questions</a></h1></center><p><strong>1)</strong> Do you know of other applications of training a model to solve separate problems at the same time, while using kernels somewhere in the mix?  Googling for "Transfer Kernel Learning" shows a good number of results but I'm curious what your thoughts/experience is with that.</p>
-<p><strong>2)</strong> My simulation above isn't great because I'm not quite sure how to create expression features that the much the structure of the real data.  Would you say it would be fair to use the sample mean vector and covariance matrix of the real data as the parameters of the normal distribution used in the simulation (assuming I made it multivariate)?  I'm not sure that this really captures all the "structure" in the data because I have no idea how to test the assumption of how "multivariate-normal" the data really is.</p>
-<p><strong>3)</strong> Do you have any advice on dealing with a relatively small percentage (10%) of missing values in <strong>dependent variables</strong>?  Fortunately, that didn't occur in the independent variables here.  I know that's much harder to deal with without a generating model for them or a missingness model, but the only ways I know of to deal with missing dependent variables is to make them parameters or to ignore them in a bayesian model posterior probability calculation.  Are there other methods for that?</p>
-<p><strong>4)</strong> How would you evaluate predictive performance in a regression problem like this one?  I tried pearson and spearman correlation (as well as their associated p values) and they seemed to indicate the same drugs as being the most predictable so I went with pearson correlation, since it was common in related papers.  One constraint is that I don't just want relative measures like MSE and R2 since I can't really assign some cutoff to them like with p-values where a task can be categorized as "predictable".</p>
-<p><strong>5)</strong> More generally, how would you go about solving a similar problem?  Would you have done something completely different?</p>
-<p><strong>6)</strong> Finally, how can I make work like this better?  I welcome any and all criticism here that would me do things like this as legitimately as possible.</p>
 
 </div>
 </div>
