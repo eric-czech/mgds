@@ -23842,49 +23842,68 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
 <li>The model being trained involves maximum a posteriori estimation of all parameters</li>
 <li>The radial-basis kernel function was used with a gamma parameter ($\gamma$) of $\frac{1}{N_{rows}}$ where gamma is used in the kernel as $e^{-\gamma||x - y||^2}$</li>
 <li>Training consisted of 2500 gradient descent steps </li>
+<li>Edward/Tensorflow model definition:</li>
 </ul>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
 <div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Necessary Libraries</span>
-<span class="kn">import</span> <span class="nn">edward</span>     <span class="k">as</span> <span class="nn">ed</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="kn">import</span> <span class="nn">numpy</span>      <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span>     <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">edward.models</span>            <span class="k">import</span> <span class="n">Normal</span><span class="p">,</span> <span class="n">Laplace</span><span class="p">,</span> <span class="n">PointMass</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span>    <span class="k">import</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="k">import</span> <span class="n">rbf_kernel</span>
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1"># Necessary Imports/Libraries</span>
+<span class="kn">import</span> <span class="nn">edward</span>     <span class="kn">as</span> <span class="nn">ed</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span>      <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span>     <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">edward.models</span>            <span class="kn">import</span> <span class="n">Normal</span><span class="p">,</span> <span class="n">Laplace</span><span class="p">,</span> <span class="n">PointMass</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span>    <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">rbf_kernel</span>
 
 
-<span class="k">def</span> <span class="nf">compute_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">compute_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">rbf_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Xs</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">TransferKernelModel</span><span class="p">(</span><span class="n">ed_models</span><span class="o">.</span><span class="n">BayesianModel</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_rppa</span><span class="p">,</span> <span class="n">Y_rppa</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_rppa</span><span class="p">,</span> <span class="n">Y_rppa</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Transfer Kernel Model</span>
+
+<span class="sd">        Accepts a reference RPPA covariate and response matrix for which a shared representation</span>
+<span class="sd">        will be used to simulatenously model RPPA responses as well as make psuedo-RPPA predictions</span>
+<span class="sd">        from which a Laplace-regularized linear model will be used to predict drug sensitivity </span>
+<span class="sd">        (in `fit` method).</span>
+
+<span class="sd">        :param X_rppa: Gene Expression Covariates for RPPA expression response; Must contain the same number</span>
+<span class="sd">            of features as the Gene Expression covariate matrix passed during fitting</span>
+<span class="sd">        :param Y_rppa: RPPA expression response matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">X_rppa</span> <span class="o">=</span> <span class="n">X_rppa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Y_rppa</span> <span class="o">=</span> <span class="n">Y_rppa</span>
 
     <span class="k">def</span> <span class="nf">inference_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Build computational graph for model &quot;&quot;&quot;</span>
-        <span class="c1"># Tensor matrices</span>
+        <span class="sd">&quot;&quot;&quot; Build computational graph for model </span>
+
+<span class="sd">        :param data: Dictionary containing:</span>
+<span class="sd">            - X: Gene Expression covariate matrix; Must have same number of features self.X_rppa</span>
+<span class="sd">            - Y: Drug Sensitivity response matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Latent variable map used for MAP estimation</span>
         <span class="n">lv</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Tensor map used for later reference</span>
         <span class="n">tm</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Reference the RPPA data given to the model on construction </span>
         <span class="c1"># * The drug sensitivity and genomic data is the only dynamic part of the model,</span>
         <span class="c1">#   RPPA reference data is assumed to be static</span>
         <span class="n">dX_rppa</span><span class="p">,</span> <span class="n">dY_rppa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_rppa</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_rppa</span>
-        
+
         <span class="c1"># Extract the genomic features (dX_drug) and the sensitivity values to predict (dY_drug)</span>
         <span class="n">dX_drug</span><span class="p">,</span> <span class="n">dY_drug</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]</span>
 
@@ -23896,7 +23915,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
         <span class="n">N1</span><span class="p">,</span> <span class="n">P1</span> <span class="o">=</span> <span class="n">dX_rppa</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># ~ 46 x 13,415</span>
         <span class="n">N2</span><span class="p">,</span> <span class="n">P2</span> <span class="o">=</span> <span class="n">dX_drug</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># ~ 403 x 13,415</span>
         <span class="n">T1</span><span class="p">,</span> <span class="n">T2</span> <span class="o">=</span> <span class="n">dY_rppa</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dY_drug</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># ~ 169 x 196</span>
-        
+
         <span class="c1"># Register kernel matrices within Tensorflow compuational graph</span>
         <span class="n">K_rppa</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">dK_rppa</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="n">K_drug</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">dK_drug</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -23905,7 +23924,7 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
         <span class="c1"># distribution for all values in that matrix and the &quot;PointMass&quot; specification after it corresponds</span>
         <span class="c1"># to the parameters of that same matrix that will be used to calculate posterior probabilities (and</span>
         <span class="c1"># optimized via gradient descent)</span>
-        
+
         <span class="c1"># N1 x T1 kernel weight matrix shared across datasets</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">N1</span><span class="p">,</span> <span class="n">T1</span><span class="p">]),</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">N1</span><span class="p">,</span> <span class="n">T1</span><span class="p">]))</span>
         <span class="n">qH</span> <span class="o">=</span> <span class="n">PointMass</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">random_normal</span><span class="p">([</span><span class="n">N1</span><span class="p">,</span> <span class="n">T1</span><span class="p">],</span> <span class="n">stddev</span><span class="o">=.</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;H&#39;</span><span class="p">))</span>
@@ -23929,28 +23948,31 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
         <span class="n">YRD_mu</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">K_drug</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
         <span class="n">YRD</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">YRD_mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=.</span><span class="mi">1</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">N2</span><span class="p">,</span> <span class="n">T1</span><span class="p">]))</span>
 
-        <span class="c1"># N2 x T2 noise model for drug sensitivity (the associated variance is an important regularization param)</span>
+        <span class="c1"># N2 x T2 noise model for drug sensitivity (the associated variance is an important </span>
+        <span class="c1"># regularization parameter)</span>
         <span class="n">YD_mu</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">YRD</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span>  
         <span class="n">YD</span> <span class="o">=</span> <span class="n">Normal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">YD_mu</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.</span><span class="o">*</span><span class="n">tf</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="n">N2</span><span class="p">,</span> <span class="n">T2</span><span class="p">]))</span>
 
-        <span class="c1"># Mean RPPA level predictions, used only to measure training error on these tasks (to make sure they don&#39;t overfit)</span>
+        <span class="c1"># Mean RPPA level predictions, used only to measure training error on these tasks </span>
+        <span class="c1"># (to make sure they don&#39;t overfit)</span>
         <span class="n">qYR</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">K_rppa</span><span class="p">,</span> <span class="n">qH</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
         <span class="n">qYD</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">K_drug</span><span class="p">,</span> <span class="n">qH</span><span class="o">.</span><span class="n">params</span><span class="p">),</span> <span class="n">qW</span><span class="o">.</span><span class="n">params</span><span class="p">)</span> <span class="o">+</span> <span class="n">qB</span><span class="o">.</span><span class="n">params</span>
         <span class="n">tm</span><span class="p">[</span><span class="s1">&#39;qYD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qYD</span>
-        
+
         <span class="c1"># Logging calls to Tensorboard to watch training error with each iteration</span>
         <span class="n">mse_rppa</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">qYR</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">dY_rppa</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s1">&#39;mse_rppa&#39;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">mse_rppa</span><span class="p">))</span>
         <span class="n">mse_drug</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">qYD</span> <span class="o">-</span> <span class="n">tf</span><span class="o">.</span><span class="n">constant</span><span class="p">(</span><span class="n">dY_drug</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s1">&#39;mse_drug&#39;</span><span class="p">,</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_mean</span><span class="p">(</span><span class="n">mse_drug</span><span class="p">))</span>
 
-        <span class="c1"># Link actual data to their associated sampling distributions (necessary for log prob and gradient calculations)</span>
+        <span class="c1"># Link actual data to their associated sampling distributions </span>
+        <span class="c1"># (necessary for log prob and gradient calculations)</span>
         <span class="n">targets</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="p">{</span><span class="n">YR</span><span class="p">:</span> <span class="n">dY_rppa</span><span class="p">,</span> <span class="n">YD</span><span class="p">:</span> <span class="n">dY_drug</span><span class="p">}</span>
-        
+
         <span class="k">return</span> <span class="n">targets</span><span class="p">,</span> <span class="n">lv</span><span class="p">,</span> <span class="n">tm</span>
 
     <span class="k">def</span> <span class="nf">criticism_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sess</span><span class="p">,</span> <span class="n">tm</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Construction prediction equation function using the fit parameters &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot; Construct prediction equation function using fit parameters &quot;&quot;&quot;</span>
         <span class="n">H</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="s1">&#39;qH&#39;</span><span class="p">])</span>
         <span class="n">W</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="s1">&#39;qW&#39;</span><span class="p">])</span>
         <span class="n">B</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">tm</span><span class="p">[</span><span class="s1">&#39;qB&#39;</span><span class="p">])</span>
@@ -23962,14 +23984,12 @@ CBAgQIAAAQIECBAgQIAAAQIECBCoSIH/D2TcRE0kD/ZwAAAAAElFTkSuQmCC
             <span class="n">Y_rppa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">dK_drug</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
             <span class="n">Y_drug</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Y_rppa</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span>
             <span class="k">return</span> <span class="n">Y_drug</span>
-        
+
         <span class="k">return</span> <span class="n">prediction_function</span>
 </pre></div>
 
 </div>
 </div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
